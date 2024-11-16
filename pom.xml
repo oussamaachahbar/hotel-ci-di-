@@ -106,6 +106,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>devops-hotel</finalName>
 	</build>
 
 </project>
