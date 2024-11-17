@@ -1,15 +1,12 @@
-# Déploiement pour le backend Spring Boot
 apiVersion: apps/v1
-kind: Deployment
+kind: Deployment # Kubernetes resource kind we are creating
 metadata:
   name: spring-boot-k8s-deployment
-  labels:
-    app: spring-boot-k8s
 spec:
-  replicas: 2
   selector:
     matchLabels:
       app: spring-boot-k8s
+  replicas: 2 # Number of replicas that will be created for this deployment
   template:
     metadata:
       labels:
@@ -17,66 +14,23 @@ spec:
     spec:
       containers:
         - name: spring-boot-k8s
-          image: tornado911/devops-hotel # Image Docker du backend
+          image: tornado911/devops-hotel # Image that will be used to containers in the cluster
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 4040 # Le port exposé par l'application backend
+            - containerPort: 4040 # The port that the container is running on in the cluster
+
 
 ---
-# Service pour exposer le backend Spring Boot
-apiVersion: v1
-kind: Service
-metadata:
+
+apiVersion: v1 # Kubernetes API version
+kind: Service # Kubernetes resource kind we are creating
+metadata: # Metadata of the resource kind we are creating
   name: springboot-k8ssvc
-  labels:
-    app: spring-boot-k8s
 spec:
   selector:
     app: spring-boot-k8s
   ports:
     - protocol: "TCP"
-      port: 4040
-      targetPort: 4040
-  type: ClusterIP # Backend peut être interne uniquement
-
----
-# Déploiement pour le frontend React
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: react-frontend-deployment
-  labels:
-    app: react-frontend
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: react-frontend
-  template:
-    metadata:
-      labels:
-        app: react-frontend
-    spec:
-      containers:
-        - name: react-frontend
-          image: tornado911/devops-hotel-frontend # Image Docker du frontend
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 80 # Le port exposé par l'application React
-
----
-# Service pour exposer le frontend React
-apiVersion: v1
-kind: Service
-metadata:
-  name: react-frontend-svc
-  labels:
-    app: react-frontend
-spec:
-  selector:
-    app: react-frontend
-  ports:
-    - protocol: "TCP"
-      port: 80
-      targetPort: 80
-  type: NodePort # Expose le frontend React sur un port accessible à l'extérieur
+      port: 4040 # The port that the service is running on in the cluster
+      targetPort: 4040 # The port exposed by the service
+  type: NodePort # type of the service.
