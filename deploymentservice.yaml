@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Déploiement pour le backend Spring Boot
 apiVersion: apps/v1
 kind: Deployment
@@ -38,3 +39,45 @@ spec:
       port: 4040
       targetPort: 4040
   type: ClusterIP # Backend peut être interne uniquement
+=======
+# Déploiement pour le backend Spring Boot
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-boot-k8s-deployment
+  labels:
+    app: spring-boot-k8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: spring-boot-k8s
+  template:
+    metadata:
+      labels:
+        app: spring-boot-k8s
+    spec:
+      containers:
+        - name: spring-boot-k8s
+          image: tornado911/devops-hotel # Image Docker du backend
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4040 # Le port exposé par l'application backend
+
+---
+# Service pour exposer le backend Spring Boot
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-k8ssvc
+  labels:
+    app: spring-boot-k8s
+spec:
+  selector:
+    app: spring-boot-k8s
+  ports:
+    - protocol: "TCP"
+      port: 4040
+      targetPort: 4040
+  type: ClusterIP # Backend peut être interne uniquement
+>>>>>>> 5191ef96babae394503d37c6f59136b9c1fb7fe6
