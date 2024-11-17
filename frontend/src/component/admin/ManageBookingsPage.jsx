@@ -24,10 +24,10 @@ const ManageBookingsPage = () => {
         };
 
         fetchBookings();
-    }, []);
+    }, []); // Cette useEffect se lance au premier rendu pour récupérer les données des réservations
 
     useEffect(() => {
-        filterBookings(searchTerm);
+        filterBookings(searchTerm); // Le deuxième useEffect va filtrer les réservations à chaque changement de 'searchTerm' ou 'bookings'
     }, [searchTerm, bookings]);
 
     const filterBookings = (term) => {
@@ -39,18 +39,19 @@ const ManageBookingsPage = () => {
             );
             setFilteredBookings(filtered);
         }
-        setCurrentPage(1);
+        setCurrentPage(1); // Réinitialiser la page courante à 1 après chaque recherche
     };
 
     const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value);
+        setSearchTerm(e.target.value); // Mettre à jour le terme de recherche à chaque frappe de l'utilisateur
     };
 
+    // Calculer l'index de la première et de la dernière réservation sur la page courante
     const indexOfLastBooking = currentPage * bookingsPerPage;
     const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
-    const currentBookings = filteredBookings.slice(indexOfFirstBooking, indexOfLastBooking);
+    const currentBookings = filteredBookings.slice(indexOfFirstBooking, indexOfLastBooking); // Paginer les réservations
 
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const paginate = (pageNumber) => setCurrentPage(pageNumber); // Mettre à jour la page courante
 
     return (
         <div className='bookings-container'>
