@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-boot-k8s-deployment
+  labels:
+    app: spring-boot-k8s
+spec:
+  replicas: 2 # Nombre de pods répliqués
+  selector:
+    matchLabels:
+      app: spring-boot-k8s
+  template:
+    metadata:
+      labels:
+        app: spring-boot-k8s
+    spec:
+      containers:
+        - name: spring-boot-k8s
+          image: tornado911/devops-hotel # Image Docker
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4040 # Le port que le conteneur expose
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-k8ssvc
+  labels:
+    app: spring-boot-k8s
+spec:
+  selector:
+    app: spring-boot-k8s
+  ports:
+    - protocol: "TCP"
+      port: 4040 # Port accessible via le service
+      targetPort: 4040 # Port exposé par le conteneur
+  type: NodePort
