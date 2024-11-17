@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../../service/ApiService';
 import Pagination from '../common/Pagination';
@@ -28,7 +28,7 @@ const ManageBookingsPage = () => {
 
     useEffect(() => {
         filterBookings(searchTerm); // Le deuxième useEffect va filtrer les réservations à chaque changement de 'searchTerm' ou 'bookings'
-    }, [searchTerm, bookings]);
+    }, [searchTerm, bookings, filterBookings]);  // Ajout de 'filterBookings' ici
 
     const filterBookings = (term) => {
         if (term === '') {
