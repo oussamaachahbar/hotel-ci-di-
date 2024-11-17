@@ -1,3 +1,4 @@
+# Déploiement pour le backend Spring Boot
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,7 +6,7 @@ metadata:
   labels:
     app: spring-boot-k8s
 spec:
-  replicas: 2 # Nombre de pods répliqués
+  replicas: 2
   selector:
     matchLabels:
       app: spring-boot-k8s
@@ -16,12 +17,13 @@ spec:
     spec:
       containers:
         - name: spring-boot-k8s
-          image: tornado911/devops-hotel # Image Docker
+          image: tornado911/devops-hotel # Image Docker du backend
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 4040 # Le port que le conteneur expose
+            - containerPort: 4040 # Le port exposé par l'application backend
 
 ---
+# Service pour exposer le backend Spring Boot
 apiVersion: v1
 kind: Service
 metadata:
@@ -33,6 +35,48 @@ spec:
     app: spring-boot-k8s
   ports:
     - protocol: "TCP"
-      port: 4040 # Port accessible via le service
-      targetPort: 4040 # Port exposé par le conteneur
-  type: NodePort
+      port: 4040
+      targetPort: 4040
+  type: ClusterIP # Backend peut être interne uniquement
+
+---
+# Déploiement pour le frontend React
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-frontend-deployment
+  labels:
+    app: react-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: react-frontend
+  template:
+    metadata:
+      labels:
+        app: react-frontend
+    spec:
+      containers:
+        - name: react-frontend
+          image: tornado911/devops-hotel-frontend # Image Docker du frontend
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80 # Le port exposé par l'application React
+
+---
+# Service pour exposer le frontend React
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-frontend-svc
+  labels:
+    app: react-frontend
+spec:
+  selector:
+    app: react-frontend
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+  type: NodePort # Expose le frontend React sur un port accessible à l'extérieur
