@@ -6,7 +6,7 @@ metadata:
   labels:
     app: spring-boot-k8s
 spec:
-  replicas: 2
+  replicas: 2 # Deux répliques pour le backend
   selector:
     matchLabels:
       app: spring-boot-k8s
@@ -17,10 +17,20 @@ spec:
     spec:
       containers:
         - name: spring-boot-k8s
-          image: tornado911/devops-hotel # Image Docker du backend
+          image: tornado911/devops-hotel:latest # Assurez-vous que cette image contient votre application Spring Boot
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 4040 # Le port exposé par l'application backend
+            - containerPort: 4040 # Port exposé par Spring Boot
+          env:
+            # Variables d'environnement pour la configuration MySQL
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql-service:3306/hotel-new"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: ""
+            - name: SERVER_PORT
+              value: "4040"
 
 ---
 # Service pour exposer le backend Spring Boot
@@ -34,7 +44,55 @@ spec:
   selector:
     app: spring-boot-k8s
   ports:
-    - protocol: "TCP"
-      port: 4040
-      targetPort: 4040
-  type: ClusterIP # Backend peut être interne uniquement
+    - protocol: TCP
+      port: 80 # Le port exposé au sein du cluster
+      targetPort: 4040 # Le port interne du conteneur Spring Boot
+  type: ClusterIP
+
+---
+# Déploiement pour MySQL
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    app: mysql
+spec:
+  replicas: 1 # Une seule instance de MySQL
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0 # Utilisation de l'image officielle de MySQL
+          imagePullPolicy: IfNotPresent
+          env:
+            # Configuration de MySQL
+            - name: MYSQL_DATABASE
+              value: "hotel-new"
+            - name: MYSQL_ROOT_PASSWORD
+              value: "" # Définissez un mot de passe si nécessaire
+          ports:
+            - containerPort: 3306 # Port exposé par MySQL
+
+---
+# Service pour exposer MySQL
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  labels:
+    app: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306 # Le port exposé au sein du cluster pour MySQL
+      targetPort: 3306 # Le port interne du conteneur MySQL
+  type: ClusterIP
